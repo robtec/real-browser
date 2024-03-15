@@ -1,0 +1,19 @@
+{
+  "name": "puppeteer-real-browser-docker",
+  "version": "1.2.11",
+  "description": "This package is a sample of how to run puppeteer via docker.",
+  "scripts": {
+    "start": "node ./src/sample.js"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^119.0.2",
+    "axios": "^1.6.7",
+    "chrome-launcher": "^1.1.0",
+    "chrome-remote-interface": "^0.33.0",
+    "cli-color": "^2.0.3",
+    "puppeteer": "^21.11.0",
+    "puppeteer-afp": "^1.0.5",
+    "puppeteer-extra": "^3.3.6",
+    "xvfb": "^0.4.0"
+  }
+}
