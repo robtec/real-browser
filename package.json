@@ -2,6 +2,7 @@
   "name": "puppeteer-real-browser-docker",
   "version": "1.2.11",
   "description": "This package is a sample of how to run puppeteer via docker.",
+  "type": "module",
   "scripts": {
     "start": "node ./src/sample.js"
   },
