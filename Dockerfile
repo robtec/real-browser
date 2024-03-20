@@ -1,11 +1,29 @@
-FROM node:16-buster-slim
+FROM node:18-buster-slim as build-image
 
 RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    ca-certificates \
+    wget gnupg ca-certificates \
+    apt-transport-https xvfb \
+    g++ make cmake unzip python3 \
+    libcurl4-openssl-dev autoconf libtool \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG FUNCTION_DIR="/function"
+
+WORKDIR ${FUNCTION_DIR}
+
+COPY package*.json ./
+
+RUN npm install aws-lambda-ric
+
+RUN npm install
+
+COPY . .
+
+FROM node:18-buster-slim
+
+RUN apt-get update && apt-get install -y \
+    wget gnupg ca-certificates \
     apt-transport-https \
-    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -14,12 +32,14 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
     && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+ENV NPM_CONFIG_CACHE=/tmp/.npm
 
-COPY package*.json ./
+ARG FUNCTION_DIR
 
-RUN npm install
+WORKDIR ${FUNCTION_DIR}
 
-COPY . .
+COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
 
-CMD ["npm", "start"]
+ENTRYPOINT ["/usr/local/bin/npx", "aws-lambda-ric"]
+
+CMD ["test.handler"]
