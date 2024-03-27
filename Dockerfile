@@ -21,6 +21,8 @@ COPY . .
 
 FROM node:18-buster-slim
 
+ENV NPM_CONFIG_CACHE=/tmp/.npm
+
 RUN apt-get update && apt-get install -y \
     wget gnupg ca-certificates \
     apt-transport-https \
@@ -29,17 +31,15 @@ RUN apt-get update && apt-get install -y \
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
     && apt-get update \
-    && apt-get install -y google-chrome-stable \
+    && apt-get install -y google-chrome-stable xvfb \
     && rm -rf /var/lib/apt/lists/*
 
-ENV NPM_CONFIG_CACHE=/tmp/.npm
-
-ARG FUNCTION_DIR
-
-WORKDIR ${FUNCTION_DIR}
+ARG FUNCTION_DIR="/function"
 
 COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
 
+WORKDIR ${FUNCTION_DIR}
+
 ENTRYPOINT ["/usr/local/bin/npx", "aws-lambda-ric"]
 
-CMD ["test.handler"]
+CMD ["node","app.js"]
